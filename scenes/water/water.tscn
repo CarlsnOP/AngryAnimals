@@ -15,7 +15,7 @@ texture_repeat = 2
 position = Vector2(567, 6)
 texture = ExtResource("1_0wdea")
 region_enabled = true
-region_rect = Rect2(0, -1, 1200, 128)
+region_rect = Rect2(0, 1, 1200, 126)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(568, 41)
