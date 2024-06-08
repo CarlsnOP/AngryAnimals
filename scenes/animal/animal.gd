@@ -8,17 +8,21 @@ const DRAG_LIM_MAX: Vector2 = Vector2(0, 60)
 const DRAG_LIM_MIN: Vector2 = Vector2(-60, 0)
 
 @onready var label = $Label
+@onready var stretch_sound = $StretchSound
+@onready var arrow = $Arrow
 
 #sets parameters for 3 states to 0
 var _start: Vector2 = Vector2.ZERO
 var _drag_start: Vector2 = Vector2.ZERO
 var _dragged_vector: Vector2 = Vector2.ZERO
+var _last_dragged_vector: Vector2 = Vector2.ZERO
 
 #Set the state as ready
 var _state: ANIMAL_STATE = ANIMAL_STATE.READY
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	arrow.hide()
 	_start = position
 
 
@@ -29,12 +33,25 @@ func _physics_process(delta):
 	label.text += "%.1f,%.1f" % [_dragged_vector.x, _dragged_vector.y]
 
 #If animal is in RELEASE state, we unfreeze it - if it is in DRAG state we set _drag_start to mouse position
+#shows arrow when animal state is in drage, hides it when released
 func set_new_state(new_state: ANIMAL_STATE) -> void:
 	_state = new_state
 	if _state == ANIMAL_STATE.RELEASE:
+		arrow.hide()
 		freeze = false
 	elif _state == ANIMAL_STATE.DRAG:
 		_drag_start = get_global_mouse_position()
+		arrow.show()
+
+#rotates arrow arround the animal
+func scale_arrow() -> void:
+	arrow.rotation = (_start - position).angle()
+
+#plays sound when mouse is moved and if sound is not already playing
+func play_stretch_sound() -> void:
+	if(_last_dragged_vector - _dragged_vector).length() > 0:
+		if stretch_sound.playing == false:
+			stretch_sound.play()
 
 #we calculate how far we dragged the animal based on mouse position minus where we clicked to begin with
 func get_dragged_vector(gmp: Vector2) -> Vector2:
@@ -42,6 +59,7 @@ func get_dragged_vector(gmp: Vector2) -> Vector2:
 
 #Setting the limit for where and how far we can drag the animal
 func drag_in_limits() -> void:
+	_last_dragged_vector = _dragged_vector
 	_dragged_vector.x = clampf(
 		_dragged_vector.x,
 		DRAG_LIM_MIN.x,
@@ -88,4 +106,6 @@ func update_drag() -> void:
 		return
 	var gmp = get_global_mouse_position()
 	_dragged_vector = get_dragged_vector(gmp)
+	play_stretch_sound()
 	drag_in_limits()
+	scale_arrow()
