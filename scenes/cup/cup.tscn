@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://qjb7ff05ymum"]
+
+[ext_resource type="Texture2D" uid="uid://6kucba10ab78" path="res://assets/env/elementWood004.png" id="1_oeu5m"]
+[ext_resource type="Texture2D" uid="uid://cgulmkt6a51uo" path="res://assets/env/elementWood015.png" id="2_h6seu"]
+
+[node name="Cup" type="StaticBody2D"]
+
+[node name="Sprites" type="Node2D" parent="."]
+scale = Vector2(0.5, 0.5)
+
+[node name="Sprite2D" type="Sprite2D" parent="Sprites"]
+position = Vector2(-72, -68)
+texture = ExtResource("1_oeu5m")
+
+[node name="Sprite2D2" type="Sprite2D" parent="Sprites"]
+position = Vector2(72, -68)
+texture = ExtResource("1_oeu5m")
+flip_h = true
+
+[node name="Sprite2D3" type="Sprite2D" parent="Sprites"]
+texture = ExtResource("2_h6seu")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-53, -52, -55, 17, 55, 17, 53, -52, 18, -17, -18, -17)

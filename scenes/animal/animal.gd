@@ -7,21 +7,29 @@ enum ANIMAL_STATE { READY, DRAG, RELEASE }
 const DRAG_LIM_MAX: Vector2 = Vector2(0, 60)
 const DRAG_LIM_MIN: Vector2 = Vector2(-60, 0)
 
+const IMPULSE_MULT: float = 20.0
+const IMPULSE_MAX: float = 1200.0
+
 @onready var label = $Label
 @onready var stretch_sound = $StretchSound
 @onready var arrow = $Arrow
+@onready var launch_sound = $LaunchSound
+@onready var kick_sound = $KickSound
 
 #sets parameters for 3 states to 0
 var _start: Vector2 = Vector2.ZERO
 var _drag_start: Vector2 = Vector2.ZERO
 var _dragged_vector: Vector2 = Vector2.ZERO
 var _last_dragged_vector: Vector2 = Vector2.ZERO
+var _arrow_scale_x: float = 0.0
+var _last_collision_count: int = 0
 
 #Set the state as ready
 var _state: ANIMAL_STATE = ANIMAL_STATE.READY
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	_arrow_scale_x = arrow.scale.x
 	arrow.hide()
 	_start = position
 
@@ -32,19 +40,33 @@ func _physics_process(delta):
 	label.text = "%s\n" % ANIMAL_STATE.keys()[_state]
 	label.text += "%.1f,%.1f" % [_dragged_vector.x, _dragged_vector.y]
 
+func get_impulse() -> Vector2:
+	return _dragged_vector * -1 * IMPULSE_MULT
+
+func set_drag() -> void:
+	_drag_start = get_global_mouse_position()
+	arrow.show()
+	
+func set_release() -> void:
+	arrow.hide()
+	freeze = false
+	apply_central_impulse(get_impulse())
+	launch_sound.play()
+
 #If animal is in RELEASE state, we unfreeze it - if it is in DRAG state we set _drag_start to mouse position
 #shows arrow when animal state is in drage, hides it when released
 func set_new_state(new_state: ANIMAL_STATE) -> void:
 	_state = new_state
 	if _state == ANIMAL_STATE.RELEASE:
-		arrow.hide()
-		freeze = false
+		set_release()
 	elif _state == ANIMAL_STATE.DRAG:
-		_drag_start = get_global_mouse_position()
-		arrow.show()
+		set_drag()
 
-#rotates arrow arround the animal
+#rotates arrow arround the animal and scales it
 func scale_arrow() -> void:
+	var imp_len = get_impulse().length()
+	var perc = imp_len / IMPULSE_MAX
+	arrow.scale.x = (_arrow_scale_x * perc) + _arrow_scale_x
 	arrow.rotation = (_start - position).angle()
 
 #plays sound when mouse is moved and if sound is not already playing
@@ -86,11 +108,14 @@ func _on_input_event(viewport, event: InputEvent, shape_idx):
 	if _state == ANIMAL_STATE.READY and event.is_action_pressed("drag"):
 		set_new_state(ANIMAL_STATE.DRAG)
 
-#If Animal state is DRAG we do activate funtion update_drag()
+#If Animal state is DRAG we activate funtion update_drag()
 func update(delta: float) -> void:
 	match _state:
 		ANIMAL_STATE.DRAG:
 			update_drag()
+		ANIMAL_STATE.RELEASE:
+			update_flight()
+		
 
 #We detect if mouse button has been released, we then change state to RELEASE
 func detect_release() -> bool:
@@ -109,3 +134,17 @@ func update_drag() -> void:
 	play_stretch_sound()
 	drag_in_limits()
 	scale_arrow()
+
+func play_collision() -> void:
+	if ( _last_collision_count == 0 and
+		get_contact_count() > 0 and 
+		kick_sound.playing == false):
+		kick_sound.play()
+	_last_collision_count = get_contact_count()
+
+func update_flight() -> void:
+	play_collision()
+
+func _on_sleeping_state_changed():
+	if sleeping == true:
+		call_deferred("die")
