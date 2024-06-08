@@ -52,6 +52,7 @@ func set_release() -> void:
 	freeze = false
 	apply_central_impulse(get_impulse())
 	launch_sound.play()
+	SignalManager.on_attempt_made.emit()
 
 #If animal is in RELEASE state, we unfreeze it - if it is in DRAG state we set _drag_start to mouse position
 #shows arrow when animal state is in drage, hides it when released
@@ -136,7 +137,7 @@ func update_drag() -> void:
 	scale_arrow()
 
 func play_collision() -> void:
-	if ( _last_collision_count == 0 and
+	if ( _last_collision_count == 0 and 
 		get_contact_count() > 0 and 
 		kick_sound.playing == false):
 		kick_sound.play()
@@ -147,4 +148,7 @@ func update_flight() -> void:
 
 func _on_sleeping_state_changed():
 	if sleeping == true:
+		var cb = get_colliding_bodies()
+		if cb.size() > 0:
+			cb[0].die()
 		call_deferred("die")

@@ -17,6 +17,7 @@ radius = 127.366
 input_pickable = true
 physics_material_override = SubResource("PhysicsMaterial_dbapg")
 freeze = true
+max_contacts_reported = 1
 contact_monitor = true
 script = ExtResource("1_pc7tv")
 
@@ -33,6 +34,7 @@ position = Vector2(-9.53674e-07, -9.23872e-07)
 scale = Vector2(1.9, 1.8)
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = -24.0
 offset_top = -67.0
 offset_right = 26.0
@@ -53,7 +55,6 @@ stream = ExtResource("5_ing3c")
 
 [node name="KickSound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_tyg7c")
-volume_db = 13.652
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="input_event" from="." to="." method="_on_input_event"]
