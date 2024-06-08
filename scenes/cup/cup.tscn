@@ -5,6 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://cgulmkt6a51uo" path="res://assets/env/elementWood015.png" id="2_h6seu"]
 [ext_resource type="AudioStream" uid="uid://ctct5clki2631" path="res://assets/audio/vanish.wav" id="4_axf38"]
 
+[sub_resource type="Animation" id="Animation_heant"]
+resource_name = "Vanish"
+
 [sub_resource type="Animation" id="Animation_hsxeo"]
 resource_name = "vanish"
 length = 0.9
@@ -36,16 +39,13 @@ tracks/1/keys = {
 }
 tracks/1/use_blend = true
 
-[sub_resource type="Animation" id="Animation_heant"]
-resource_name = "Vanish"
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_1vsot"]
 _data = {
 "Vanish": SubResource("Animation_heant"),
 "vanish": SubResource("Animation_hsxeo")
 }
 
-[node name="Cup" type="StaticBody2D"]
+[node name="Cup" type="StaticBody2D" groups=["cup"]]
 script = ExtResource("1_mb512")
 
 [node name="Sprites" type="Node2D" parent="."]
